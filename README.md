@@ -1,11 +1,20 @@
 # 🚀 STRATA-AI
 
-**AI-powered startup survival and strategy assistant** that predicts financial runway, simulates future business conditions, and generates actionable pivot strategies—transforming assumption-based founder decisions into data-driven survival plans.
+<p align="center">
+  <img src="frontend/public/logo.svg" alt="STRATA-AI Logo" width="120" height="120">
+</p>
 
-[![Tests](https://img.shields.io/badge/tests-72%20passed-brightgreen)](#-test-results)
-[![Backend](https://img.shields.io/badge/backend-FastAPI-009688)](./backend)
-[![Frontend](https://img.shields.io/badge/frontend-React%2019-61DAFB)](./frontend)
-[![License](https://img.shields.io/badge/license-MIT-blue)](#license)
+<p align="center">
+  <strong>AI-powered startup survival and strategy assistant</strong><br>
+  Predict financial runway, simulate future conditions, and generate actionable pivot strategies.
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/tests-62%20passed-brightgreen" alt="Tests">
+  <img src="https://img.shields.io/badge/backend-FastAPI-009688" alt="Backend">
+  <img src="https://img.shields.io/badge/frontend-React%2019-61DAFB" alt="Frontend">
+  <img src="https://img.shields.io/badge/license-MIT-blue" alt="License">
+</p>
 
 ---
 
@@ -49,9 +58,8 @@ STRATA-AI supports multiple authentication methods:
 
 | Method | Description | Status |
 |--------|-------------|--------|
-| **Email/Password** | Traditional registration with email verification | ✅ |
+| **Email/Password** | Traditional registration with secure password hashing | ✅ |
 | **Google OAuth** | One-click sign in with Google account | ✅ |
-| **GitHub OAuth** | Sign in with GitHub account | 🔜 Coming Soon |
 
 ### Password Management
 
@@ -63,11 +71,12 @@ STRATA-AI supports multiple authentication methods:
 
 ### Security Features
 
-- 🔒 JWT tokens with configurable expiration
+- 🔒 JWT tokens with configurable expiration (default: 24 hours)
 - 🔒 Bcrypt password hashing
-- 🔒 OAuth token verification with providers
+- 🔒 OAuth token verification with Google
 - 🔒 Account linking (email ↔ OAuth)
 - 🔒 Protected routes with authentication middleware
+- 🔒 Security headers (XSS, Clickjacking protection)
 
 ---
 
@@ -83,6 +92,7 @@ STRATA-AI supports multiple authentication methods:
 | **Pydantic v2** | Data validation and serialization |
 | **python-jose** | JWT token handling |
 | **google-auth** | Google OAuth verification |
+| **orjson** | Fast JSON serialization |
 | **Groq API** | Default LLM provider (Llama 3.3 70B) |
 | **scikit-learn** | ML-based forecasting |
 
@@ -119,18 +129,16 @@ strata-ai/
 │   │   ├── models/             # MongoDB document models
 │   │   ├── schemas/            # Pydantic request/response schemas
 │   │   └── services/           # Business logic
-│   │       ├── runway_engine.py
-│   │       ├── forecast_engine.py
-│   │       ├── scenario_engine.py
-│   │       ├── ai_service.py
-│   │       └── ml_forecast.py
 │   ├── tests/
 │   ├── .env.example
 │   ├── requirements.txt
 │   └── README.md
 │
 ├── frontend/                   # React Frontend
+│   ├── public/
+│   │   └── logo.svg            # App logo/favicon
 │   ├── src/
+│   │   ├── assets/             # Static assets (logo, images)
 │   │   ├── components/
 │   │   │   ├── auth/           # GoogleSignInButton
 │   │   │   ├── charts/         # Financial visualizations
@@ -143,7 +151,8 @@ strata-ai/
 │   │   │   ├── dashboard/      # Main dashboard
 │   │   │   ├── scenarios/      # Scenario analyzer
 │   │   │   ├── ideation/       # AI suggestions
-│   │   │   └── roadmaps/       # Execution plans
+│   │   │   ├── roadmaps/       # Execution plans
+│   │   │   └── onboarding/     # Setup wizard
 │   │   ├── services/           # API client & services
 │   │   ├── stores/             # Zustand state stores
 │   │   ├── hooks/              # Custom React hooks
@@ -153,7 +162,8 @@ strata-ai/
 │
 ├── docs/                       # Documentation
 │   ├── architecture/           # Technical architecture docs
-│   └── prd/                    # Product Requirements Document
+│   ├── prd/                    # Product Requirements Document
+│   └── DEPLOYMENT.md           # Deployment guide
 │
 └── ml/                         # Machine Learning (placeholder)
 ```
@@ -174,7 +184,8 @@ strata-ai/
 
 ```bash
 git clone https://github.com/x-LANsolo-x/Strata-AI.git
-cd Strata-AI/strata-ai
+cd Strata-AI
+git checkout strata-v1
 ```
 
 ### 2. Backend Setup
@@ -192,13 +203,13 @@ pip install -r requirements.txt
 
 # Configure environment
 cp .env.example .env
-# Edit .env with your MongoDB URI, Secret Key, Groq API Key, and optionally Google OAuth
+# Edit .env with your MongoDB URI, Secret Key, Groq API Key, etc.
 
 # Run the server
 uvicorn app.main:app --reload
 ```
 
-Backend will be available at: **http://127.0.0.1:8000**
+Backend available at: **http://127.0.0.1:8000**
 - API Docs: http://127.0.0.1:8000/docs
 - Health Check: http://127.0.0.1:8000/health
 
@@ -214,7 +225,7 @@ npm install
 npm run dev
 ```
 
-Frontend will be available at: **http://localhost:5173**
+Frontend available at: **http://localhost:5173**
 
 ---
 
@@ -271,22 +282,16 @@ Frontend will be available at: **http://localhost:5173**
 
 ## ✅ Test Results
 
-**Total: 72 Tests | 100% Pass Rate**
+**Total: 62 Tests | 100% Pass Rate**
 
 | Test Suite | Tests | Status |
 |------------|-------|--------|
-| **Backend Unit Tests** | 35 | ✅ All Passed |
-| **Frontend Component Tests** | 16 | ✅ All Passed |
-| **Integration Tests** | 21 | ✅ All Passed |
-
-### Backend Test Coverage
-
-- ✅ Runway Engine (burn rate, runway calculation)
-- ✅ Forecast Engine (linear, ensemble methods)
-- ✅ Scenario Engine (hire, invest, cut scenarios)
-- ✅ Security (JWT, password hashing)
-- ✅ Schema Validation (Pydantic models)
-- ✅ PRD Requirements (FR-1 through FR-9)
+| **Backend Core Services** | 10 | ✅ All Passed |
+| **Backend Security** | 5 | ✅ All Passed |
+| **Backend Schemas** | 5 | ✅ All Passed |
+| **Backend API Endpoints** | 20 | ✅ All Passed |
+| **Backend Configuration** | 6 | ✅ All Passed |
+| **Frontend Unit Tests** | 16 | ✅ All Passed |
 
 ### Run Tests
 
@@ -327,6 +332,9 @@ LLM_MODEL=llama-3.3-70b-versatile
 # Google OAuth (Optional)
 GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=your-client-secret
+
+# Frontend URL (for CORS in production)
+FRONTEND_URL=https://your-app.vercel.app
 ```
 
 ### Setting Up Google OAuth
@@ -346,25 +354,55 @@ GOOGLE_CLIENT_SECRET=your-client-secret
 ### Backend (Render.com - Free Tier)
 
 1. Connect GitHub repo
-2. Set environment variables
-3. Build command: `pip install -r requirements.txt`
-4. Start command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+2. Root Directory: `backend`
+3. Build: `pip install -r requirements.txt`
+4. Start: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
 
 ### Frontend (Vercel - Free Tier)
 
 1. Connect GitHub repo
 2. Framework: Vite
-3. Build command: `npm run build`
-4. Output directory: `dist`
+3. Root Directory: `frontend`
+4. Build: `npm run build`
+5. Output: `dist`
 
 ### Database (MongoDB Atlas - Free Tier)
 
 1. Create free M0 cluster
 2. Add database user
-3. Whitelist IP addresses (or 0.0.0.0/0 for development)
-4. Get connection string for `.env`
+3. Whitelist IPs
+4. Get connection string
 
-For detailed deployment instructions, see [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)
+For detailed instructions, see [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)
+
+---
+
+## 🚀 Performance Optimizations
+
+### Backend
+- ✅ ORJSONResponse (2-3x faster JSON)
+- ✅ GZip compression (50-70% bandwidth reduction)
+- ✅ MongoDB connection pooling
+- ✅ Database indexes
+- ✅ Cache-Control headers
+- ✅ Security headers
+
+### Frontend
+- ✅ Lazy loading (code splitting)
+- ✅ 24 optimized chunks
+- ✅ Vendor chunk separation
+- ✅ React Query caching
+- ✅ Request deduplication
+- ✅ Font preloading
+
+### Bundle Size (Gzipped)
+| Chunk | Size |
+|-------|------|
+| Main | 65.6 KB |
+| React | 33.3 KB |
+| Charts | 64.3 KB |
+| Forms | 26.1 KB |
+| **Initial Load** | ~100 KB |
 
 ---
 
@@ -394,5 +432,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 <p align="center">
+  <img src="frontend/public/logo.svg" alt="STRATA-AI" width="60">
+  <br>
   Built with ❤️ for startup founders who refuse to fail
 </p>

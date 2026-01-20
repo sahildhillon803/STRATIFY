@@ -1,5 +1,9 @@
 # 🔧 STRATA-AI Backend
 
+<p align="center">
+  <img src="../frontend/public/logo.svg" alt="STRATA-AI Logo" width="80">
+</p>
+
 FastAPI backend for the STRATA-AI startup survival and strategy assistant.
 
 ---

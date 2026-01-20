@@ -1,5 +1,9 @@
 # 🎨 STRATA-AI Frontend
 
+<p align="center">
+  <img src="public/logo.svg" alt="STRATA-AI Logo" width="80">
+</p>
+
 React TypeScript frontend for the STRATA-AI startup survival and strategy assistant.
 
 ---

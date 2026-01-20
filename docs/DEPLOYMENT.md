@@ -1,5 +1,9 @@
 # 🚀 STRATA-AI Deployment Guide
 
+<p align="center">
+  <img src="../frontend/public/logo.svg" alt="STRATA-AI Logo" width="80">
+</p>
+
 Complete guide for deploying STRATA-AI to production using free-tier services.
 
 ---
