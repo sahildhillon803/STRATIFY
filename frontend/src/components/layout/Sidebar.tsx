@@ -1,7 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
-  Rocket, 
   LayoutDashboard, 
   BarChart3, 
   BrainCircuit, 
@@ -15,6 +14,7 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth.store';
 import { useNavigate } from 'react-router-dom';
+import logoSvg from '@/assets/logo.svg';
 
 // Menu section items
 const menuItems = [
@@ -93,9 +93,7 @@ export function Sidebar() {
     <aside className="fixed inset-y-0 left-0 z-10 hidden w-64 flex-col border-r border-gray-200 bg-white sm:flex">
       {/* Logo Section */}
       <div className="flex items-center gap-3 px-6 py-5 border-b border-gray-100">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-500 text-white">
-          <Rocket className="h-5 w-5" />
-        </div>
+        <img src={logoSvg} alt="Strata-AI Logo" className="h-10 w-10" />
         <span className="text-lg font-bold text-gray-900">Strata-AI</span>
       </div>
 

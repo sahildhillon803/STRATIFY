@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router-dom';
-import { Rocket } from 'lucide-react';
+import logoSvg from '@/assets/logo.svg';
 
 export function AuthLayout() {
   return (
@@ -7,9 +7,11 @@ export function AuthLayout() {
       <div className="w-full max-w-md">
         {/* Logo Section */}
         <div className="text-center mb-8">
-          <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-500 text-white mb-4">
-            <Rocket className="h-7 w-7" />
-          </div>
+          <img 
+            src={logoSvg} 
+            alt="Strata-AI Logo" 
+            className="h-16 w-16 mx-auto mb-4"
+          />
           <h1 className="text-3xl font-bold text-gray-900">Strata-AI</h1>
           <p className="text-gray-500 mt-1">AI-powered startup survival assistant</p>
         </div>

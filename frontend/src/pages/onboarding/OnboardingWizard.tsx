@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/Button';
 import { useCreateStartupProfile } from '@/hooks/useStartup';
 import { useAuthStore } from '@/stores/auth.store';
 import { useNavigate } from 'react-router-dom';
-import { Loader2, Rocket, Building2, Briefcase, DollarSign, TrendingDown, CheckCircle, ChevronRight, Users } from 'lucide-react';
+import { Loader2, Building2, Briefcase, DollarSign, TrendingDown, CheckCircle, ChevronRight, Users } from 'lucide-react';
+import logoSvg from '@/assets/logo.svg';
 
 const onboardingSchema = z.object({
   name: z.string().min(2, "Startup name is required"),
@@ -88,9 +89,7 @@ export function OnboardingWizard() {
       <div className="w-full max-w-xl">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-500 text-white mb-4">
-            <Rocket className="h-7 w-7" />
-          </div>
+          <img src={logoSvg} alt="Strata-AI Logo" className="h-16 w-16 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-gray-900">Welcome to Strata-AI</h1>
           <p className="text-gray-500 mt-1">Let's set up your startup profile in 3 easy steps</p>
         </div>
