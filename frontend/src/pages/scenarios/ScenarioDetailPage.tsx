@@ -13,7 +13,7 @@ import {
   TrendingDown,
   Calendar,
   Target,
-  Trash2
+  Trash2 as _Trash2
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 
@@ -116,7 +116,7 @@ export function ScenarioDetailPage() {
             </div>
             <span className="text-sm text-gray-500">New Runway</span>
           </div>
-          <p className="text-2xl font-bold text-gray-900">{result.newRunway.toFixed(1)} months</p>
+          <p className="text-2xl font-bold text-gray-900">{(result.newRunway ?? result.newRunwayMonths).toFixed(1)} months</p>
         </div>
 
         {/* Runway Change */}
@@ -142,7 +142,7 @@ export function ScenarioDetailPage() {
             </div>
             <span className="text-sm text-gray-500">New Burn Rate</span>
           </div>
-          <p className="text-2xl font-bold text-gray-900">${result.newBurnRate.toLocaleString()}/mo</p>
+          <p className="text-2xl font-bold text-gray-900">${(result.newBurnRate ?? 0).toLocaleString()}/mo</p>
         </div>
 
         {/* Created Date */}

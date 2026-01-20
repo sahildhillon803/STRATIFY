@@ -49,27 +49,14 @@ app = FastAPI(
 # GZip compression for responses > 500 bytes (reduces bandwidth significantly)
 app.add_middleware(GZipMiddleware, minimum_size=500)
 
-# CORS Configuration - Production ready
-origins = [
-    "http://localhost:5173",  # Vite dev
-    "http://localhost:3000",  # React dev
-    "http://127.0.0.1:5173",
-    "http://127.0.0.1:3000",
-]
-
-# Add production frontend URL from environment
-if settings.FRONTEND_URL:
-    origins.append(settings.FRONTEND_URL)
-
-# Allow all Vercel preview URLs
+# CORS Configuration - Allow all origins for production
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
-    allow_origin_regex=r"https://.*\.vercel\.app",  # Allow all Vercel deployments
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_origins=["*"],  # Allow all origins
+    allow_credentials=False,  # Must be False when using "*"
+    allow_methods=["*"],
     allow_headers=["*"],
-    max_age=86400,  # Cache preflight requests for 24 hours
+    max_age=86400,
 )
 
 

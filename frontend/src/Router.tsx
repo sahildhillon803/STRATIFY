@@ -3,7 +3,6 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 // Layouts - Load immediately (needed for all routes)
 import { MainLayout } from '@/components/layout/MainLayout';
-import { AuthLayout } from '@/components/layout/AuthLayout';
 
 // Wrappers & Error - Load immediately
 import { ProtectedRoute } from '@/components/shared/ProtectedRoute';
@@ -20,19 +19,6 @@ const PageLoader = () => (
 );
 
 // Lazy load pages for code splitting
-// This reduces initial bundle size and loads pages on-demand
-const LoginPage = lazy(() => 
-  import('@/pages/auth/LoginPage').then(m => ({ default: m.LoginPage }))
-);
-const RegisterPage = lazy(() => 
-  import('@/pages/auth/RegisterPage').then(m => ({ default: m.RegisterPage }))
-);
-const ForgotPasswordPage = lazy(() => 
-  import('@/pages/auth/ForgotPasswordPage').then(m => ({ default: m.ForgotPasswordPage }))
-);
-const ResetPasswordPage = lazy(() => 
-  import('@/pages/auth/ResetPasswordPage').then(m => ({ default: m.ResetPasswordPage }))
-);
 const SmartOnboarding = lazy(() => 
   import('@/pages/onboarding/SmartOnboarding').then(m => ({ default: m.SmartOnboarding }))
 );
@@ -67,28 +53,22 @@ const withSuspense = (Component: React.LazyExoticComponent<React.ComponentType>)
 
 const router = createBrowserRouter([
   {
-    element: <AuthLayout />,
-    errorElement: <ErrorPage />,
-    children: [
-      { path: '/login', element: withSuspense(LoginPage) },
-      { path: '/register', element: withSuspense(RegisterPage) },
-      { path: '/forgot-password', element: withSuspense(ForgotPasswordPage) },
-      { path: '/reset-password', element: withSuspense(ResetPasswordPage) },
-    ],
-  },
-  {
     path: '/',
     element: <ProtectedRoute />,
+    errorElement: <ErrorPage />,
     children: [
+      {
+        index: true,
+        element: withSuspense(SmartOnboarding),
+      },
       {
         path: 'onboarding',
         element: withSuspense(SmartOnboarding),
       },
       {
         element: <MainLayout />,
-        errorElement: <ErrorPage />,
         children: [
-          { index: true, element: withSuspense(DashboardPage) },
+          { path: 'dashboard', element: withSuspense(DashboardPage) },
           { path: 'scenarios', element: withSuspense(ScenariosPage) },
           { path: 'scenarios/:id', element: withSuspense(ScenarioDetailPage) },
           { path: 'ideation', element: withSuspense(IdeationPage) },

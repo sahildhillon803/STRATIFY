@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
 type ModalType = 'createScenario' | 'createIdea' | 'createRoadmap';
-type TabType = 'Overview' | 'Analytics' | 'Reports';
+type TabType = string;
 
 interface UiState {
   // Modal state

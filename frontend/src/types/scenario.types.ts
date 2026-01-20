@@ -8,6 +8,8 @@ export interface ScenarioModifications {
 export interface ScenarioResult {
   newRunwayMonths: number;
   runwayDelta: number;
+  newRunway?: number;
+  newBurnRate?: number;
 }
 
 export interface Scenario {

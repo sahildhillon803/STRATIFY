@@ -2,7 +2,6 @@ import { useParams, Link } from 'react-router-dom';
 import { useRoadmap, useToggleTask } from '@/hooks/useRoadmaps';
 import { Loader2, CheckCircle, Circle, ArrowLeft, Clock, Target, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import { useState } from 'react';
 
 export function RoadmapDetailPage() {
   const { id } = useParams<{ id: string }>();
