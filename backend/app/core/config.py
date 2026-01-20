@@ -20,6 +20,10 @@ class Settings(BaseSettings):
     # Frontend URL for CORS (production)
     FRONTEND_URL: str = ""
     
+    # Google OAuth Configuration
+    GOOGLE_CLIENT_ID: str = ""
+    GOOGLE_CLIENT_SECRET: str = ""
+    
     # Rate limiting
     RATE_LIMIT_PER_MINUTE: int = 60
 

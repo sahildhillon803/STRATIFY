@@ -57,3 +57,30 @@ class PasswordChangeRequest(BaseModel):
         if len(v) < 8:
             raise ValueError('Password must be at least 8 characters')
         return v
+
+
+# Google OAuth Schemas
+class GoogleAuthRequest(BaseModel):
+    """Request body for Google OAuth login."""
+    credential: str  # Google ID token from frontend
+
+
+class GoogleAuthResponse(BaseModel):
+    """Response after successful Google OAuth."""
+    access_token: str
+    token_type: str = "bearer"
+    user: "UserResponse"
+    is_new_user: bool = False
+
+
+class UserResponseWithPicture(BaseModel):
+    """User response with profile picture for OAuth users."""
+    id: str
+    email: EmailStr
+    full_name: Optional[str] = None
+    is_active: bool
+    profile_picture: Optional[str] = None
+    oauth_provider: Optional[str] = None
+
+    class Config:
+        from_attributes = True

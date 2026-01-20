@@ -7,6 +7,7 @@ import { login } from '@/services/auth.service';
 import { useNavigate, Link } from 'react-router-dom';
 import { useState } from 'react';
 import { Loader2, Mail, Lock } from 'lucide-react';
+import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -108,8 +109,40 @@ export function LoginPage() {
         Sign In
       </Button>
 
+      {/* Divider */}
+      <div className="relative my-6">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-gray-200"></div>
+        </div>
+        <div className="relative flex justify-center text-sm">
+          <span className="px-2 bg-white text-gray-500">Or continue with</span>
+        </div>
+      </div>
+
+      {/* Google Sign In */}
+      <GoogleSignInButton
+        text="signin_with"
+        onSuccess={(response) => {
+          loginUser(
+            {
+              id: response.user.id,
+              email: response.user.email,
+              fullName: response.user.full_name || '',
+              onboardingCompleted: !response.is_new_user,
+            },
+            response.access_token
+          );
+          if (response.is_new_user) {
+            navigate('/onboarding');
+          } else {
+            navigate('/');
+          }
+        }}
+        onError={(error) => setErrorMessage(error)}
+      />
+
       {/* Sign Up Link */}
-      <p className="text-center text-sm text-gray-500">
+      <p className="text-center text-sm text-gray-500 mt-6">
         Don't have an account?{' '}
         <Link to="/register" className="font-semibold text-primary-500 hover:text-primary-600">
           Create account

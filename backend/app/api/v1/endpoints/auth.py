@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordRequestForm
+import httpx
 
 from app.core import security
 from app.core.config import settings
@@ -12,11 +13,16 @@ from app.schemas.user import (
     PasswordResetConfirm,
     PasswordResetResponse,
     PasswordChangeRequest,
+    GoogleAuthRequest,
+    UserResponseWithPicture,
 )
 from app.schemas.token import Token
 from app.api.v1.deps import get_current_user
 
 router = APIRouter()
+
+# Google OAuth token verification URL
+GOOGLE_TOKEN_INFO_URL = "https://oauth2.googleapis.com/tokeninfo"
 
 
 @router.post("/register", response_model=UserResponse)
@@ -175,3 +181,131 @@ async def get_current_user_info(current_user: User = Depends(get_current_user)):
         full_name=current_user.full_name,
         is_active=current_user.is_active
     )
+
+
+@router.post("/google", response_model=dict)
+async def google_oauth_login(request: GoogleAuthRequest):
+    """
+    Authenticate with Google OAuth.
+    
+    Receives a Google ID token from the frontend, verifies it with Google,
+    and either logs in an existing user or creates a new account.
+    """
+    # Verify the Google token
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                GOOGLE_TOKEN_INFO_URL,
+                params={"id_token": request.credential}
+            )
+            
+            if response.status_code != 200:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Invalid Google token"
+                )
+            
+            google_data = response.json()
+    except httpx.RequestError:
+        raise HTTPException(
+            status_code=503,
+            detail="Unable to verify Google token. Please try again."
+        )
+    
+    # Verify the token is for our app (if GOOGLE_CLIENT_ID is configured)
+    if settings.GOOGLE_CLIENT_ID:
+        if google_data.get("aud") != settings.GOOGLE_CLIENT_ID:
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid token audience"
+            )
+    
+    # Extract user info from Google token
+    email = google_data.get("email")
+    google_id = google_data.get("sub")
+    full_name = google_data.get("name")
+    profile_picture = google_data.get("picture")
+    email_verified = google_data.get("email_verified", "false") == "true"
+    
+    if not email or not google_id:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid Google token data"
+        )
+    
+    if not email_verified:
+        raise HTTPException(
+            status_code=400,
+            detail="Google email not verified"
+        )
+    
+    # Check if user exists by Google ID or email
+    user = await User.find_one(
+        {"$or": [
+            {"oauth_provider": "google", "oauth_id": google_id},
+            {"email": email}
+        ]}
+    )
+    
+    is_new_user = False
+    
+    if user:
+        # Existing user - update OAuth info if needed
+        if not user.oauth_provider:
+            # User registered with email/password, now linking Google
+            user.oauth_provider = "google"
+            user.oauth_id = google_id
+        if profile_picture and not user.profile_picture:
+            user.profile_picture = profile_picture
+        if full_name and not user.full_name:
+            user.full_name = full_name
+        user.last_login = datetime.utcnow()
+        await user.save()
+    else:
+        # New user - create account
+        user = User(
+            email=email,
+            full_name=full_name,
+            oauth_provider="google",
+            oauth_id=google_id,
+            profile_picture=profile_picture,
+            hashed_password=None,  # No password for OAuth users
+        )
+        await user.create()
+        is_new_user = True
+    
+    if not user.is_active:
+        raise HTTPException(status_code=400, detail="User account is inactive")
+    
+    # Create access token
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = security.create_access_token(
+        subject=user.id, expires_delta=access_token_expires
+    )
+    
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "is_new_user": is_new_user,
+        "user": {
+            "id": str(user.id),
+            "email": user.email,
+            "full_name": user.full_name,
+            "profile_picture": user.profile_picture,
+            "oauth_provider": user.oauth_provider,
+        }
+    }
+
+
+@router.get("/google/client-id")
+async def get_google_client_id():
+    """
+    Returns the Google Client ID for frontend configuration.
+    This endpoint is public so the frontend can initialize Google Sign-In.
+    """
+    if not settings.GOOGLE_CLIENT_ID:
+        raise HTTPException(
+            status_code=404,
+            detail="Google OAuth not configured"
+        )
+    return {"client_id": settings.GOOGLE_CLIENT_ID}

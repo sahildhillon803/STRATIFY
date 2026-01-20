@@ -7,6 +7,7 @@ import { register as registerService } from '@/services/auth.service';
 import { useNavigate, Link } from 'react-router-dom';
 import { useState } from 'react';
 import { Loader2, Mail, Lock, User } from 'lucide-react';
+import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton';
 
 const registerSchema = z.object({
   fullName: z.string().min(2, 'Name must be at least 2 characters'),
@@ -105,8 +106,35 @@ export function RegisterPage() {
         Create Account
       </Button>
 
+      {/* Divider */}
+      <div className="relative my-6">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-gray-200"></div>
+        </div>
+        <div className="relative flex justify-center text-sm">
+          <span className="px-2 bg-white text-gray-500">Or continue with</span>
+        </div>
+      </div>
+
+      {/* Google Sign In */}
+      <GoogleSignInButton
+        text="signup_with"
+        onSuccess={(response) => {
+          loginUser(
+            {
+              id: response.user.id,
+              email: response.user.email,
+              fullName: response.user.full_name || '',
+              onboardingCompleted: false,
+            },
+            response.access_token
+          );
+          navigate('/onboarding');
+        }}
+      />
+
       {/* Terms */}
-      <p className="text-center text-xs text-gray-400">
+      <p className="text-center text-xs text-gray-400 mt-4">
         By creating an account, you agree to our{' '}
         <a href="#" className="text-primary-500 hover:underline">Terms of Service</a>
         {' '}and{' '}
