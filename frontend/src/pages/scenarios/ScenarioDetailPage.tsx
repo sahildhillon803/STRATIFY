@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getScenarioById } from '@/services/scenario.service';
-import type { Scenario } from '@/types/scenario.types';
+import type { Scenario as _Scenario } from '@/types/scenario.types';
 import { 
   Loader2, 
   ArrowLeft, 

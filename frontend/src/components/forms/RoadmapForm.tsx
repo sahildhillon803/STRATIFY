@@ -34,7 +34,7 @@ export function RoadmapForm() {
   });
 
   const onSubmit = (data: RoadmapFormData) => {
-    generateRoadmap(data.title, {
+    generateRoadmap({ title: data.title, description: data.description }, {
       onSuccess: (newRoadmap) => {
         closeModal();
         window.location.href = `/roadmaps/${newRoadmap.id}`;
