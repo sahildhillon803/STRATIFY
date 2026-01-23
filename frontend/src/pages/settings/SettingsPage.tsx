@@ -258,7 +258,7 @@ export function SettingsPage() {
       formData.append('file', file);
 
       const authToken = getAuthToken();
-      const url = `http://127.0.0.1:8000/api/v1/onboarding/extract-from-file-enhanced?file_type_hint=${fileTypeHint}`;
+      const url = `https://strata-ai-backend-zj91.onrender.com/api/v1/onboarding/extract-from-file-enhanced?file_type_hint=${fileTypeHint}`;
 
       const response = await fetch(url, {
         method: 'POST',
@@ -366,7 +366,7 @@ export function SettingsPage() {
     try {
       const authToken = getAuthToken();
 
-      const response = await fetch('http://127.0.0.1:8000/api/v1/onboarding/connect-google-sheets', {
+      const response = await fetch('https://strata-ai-backend-zj91.onrender.com/api/v1/onboarding/connect-google-sheets', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${authToken}`,
