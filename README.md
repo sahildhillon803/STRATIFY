@@ -13,8 +13,14 @@
   <img src="https://img.shields.io/badge/tests-62%20passed-brightgreen" alt="Tests">
   <img src="https://img.shields.io/badge/backend-FastAPI-009688" alt="Backend">
   <img src="https://img.shields.io/badge/frontend-React%2019-61DAFB" alt="Frontend">
-  <img src="https://img.shields.io/badge/license-MIT-blue" alt="License">
 </p>
+
+## 🌐 Live Demo
+
+| Service | URL |
+|---------|-----|
+| **Frontend** | https://strata-ai-frontend.netlify.app |
+| **Backend API** | https://strata-ai-backend-zj91.onrender.com |
 
 ---
 
@@ -30,7 +36,6 @@
 - [Configuration](#-configuration)
 - [Deployment](#-deployment)
 - [Contributing](#-contributing)
-- [License](#-license)
 
 ---
 
