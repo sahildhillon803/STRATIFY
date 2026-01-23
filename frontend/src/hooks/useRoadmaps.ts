@@ -19,7 +19,8 @@ export const useRoadmap = (id: string) => {
 export const useGenerateRoadmap = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (ideaTitle: string) => generateRoadmapFromIdea(ideaTitle),
+        mutationFn: (idea: { title: string; description?: string }) => 
+            generateRoadmapFromIdea(idea.title, idea.description),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['roadmaps'] });
         }

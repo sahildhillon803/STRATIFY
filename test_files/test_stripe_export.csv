@@ -1,0 +1,13 @@
+id,created,amount,fee,net,type,description
+ch_stripe001,2026-11-02,7500000,217500,7282500,charge,Enterprise Annual - Acme Corp
+ch_stripe002,2026-11-05,250000,7750,242250,charge,Pro Monthly - StartupXYZ
+ch_stripe003,2026-11-08,7500000,217500,7282500,charge,Enterprise Annual - BigTech Inc
+ch_stripe004,2026-11-12,125000,4125,120875,charge,Starter Monthly - SmallBiz
+ch_stripe005,2026-11-15,250000,7750,242250,charge,Pro Monthly - GrowthCo
+ch_stripe006,2026-11-18,7500000,217500,7282500,charge,Enterprise Annual - MegaCorp
+ch_stripe007,2026-11-22,500000,14800,485200,charge,Pro Annual - ScaleUp Ltd
+ch_stripe008,2026-11-25,250000,7750,242250,charge,Pro Monthly - TechStart
+ch_stripe009,2026-12-02,7500000,217500,7282500,charge,Enterprise Annual - GlobalTech
+ch_stripe010,2026-12-05,250000,7750,242250,charge,Pro Monthly - InnovateCo
+ch_stripe011,2026-12-10,7500000,217500,7282500,charge,Enterprise Annual - FutureCorp
+ch_stripe012,2026-12-15,125000,4125,120875,charge,Starter Monthly - NewVenture

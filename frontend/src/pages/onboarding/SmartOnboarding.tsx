@@ -21,7 +21,7 @@ import {
 import logoSvg from '@/assets/logo.svg';
 import { Button } from '@/components/ui/Button';
 import { useAuthStore } from '@/stores/auth.store';
-import { createStartupProfile } from '@/services/startup.service';
+import { createStartupProfile, updateStartupProfile } from '@/services/startup.service';
 
 // Types
 interface ExtractedData {
@@ -65,7 +65,7 @@ const chatQuestions = [
 
 export function SmartOnboarding() {
   const navigate = useNavigate();
-  const { user, setUser } = useAuthStore();
+  const { user, setUser, token } = useAuthStore();
   
   // State
   const [currentStep, setCurrentStep] = useState<OnboardingStep>('chat');
@@ -171,6 +171,10 @@ export function SmartOnboarding() {
 
   // Get auth token helper
   const getAuthToken = (): string => {
+    // First try the token from Zustand store
+    if (token) return token;
+    
+    // Fallback to localStorage
     const authStorage = localStorage.getItem('auth-storage');
     if (authStorage) {
       try {
@@ -190,7 +194,7 @@ export function SmartOnboarding() {
       const formData = new FormData();
       formData.append('file', file);
 
-      const token = getAuthToken();
+      const authToken = getAuthToken();
 
       // Use enhanced extraction endpoint with file type hint
       const url = fileTypeHint 
@@ -200,7 +204,7 @@ export function SmartOnboarding() {
       const response = await fetch(url, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'Authorization': `Bearer ${authToken}`,
         },
         body: formData,
       });
@@ -260,12 +264,12 @@ export function SmartOnboarding() {
     setIsProcessing(true);
 
     try {
-      const token = getAuthToken();
+      const authToken = getAuthToken();
 
       const response = await fetch('http://127.0.0.1:8000/api/v1/onboarding/connect-google-sheets', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'Authorization': `Bearer ${authToken}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ sheet_url: googleSheetUrl }),
@@ -306,7 +310,7 @@ export function SmartOnboarding() {
   const handleComplete = async () => {
     setIsSubmitting(true);
     try {
-      await createStartupProfile({
+      const profileData = {
         name: extractedData.name || 'My Startup',
         industry: extractedData.industry || 'Technology',
         stage: extractedData.stage || 'mvp',
@@ -316,7 +320,20 @@ export function SmartOnboarding() {
         initial_monthly_expenses: extractedData.initial_monthly_expenses,
         initial_monthly_revenue: extractedData.initial_monthly_revenue,
         goals: extractedData.challenges
-      });
+      };
+
+      // Try to create, if already exists then update (upsert behavior)
+      try {
+        await createStartupProfile(profileData);
+      } catch (createError) {
+        // If profile already exists (400 error), update instead
+        if (createError instanceof Error && createError.message.includes('already exists')) {
+          console.log('Profile exists, updating instead...');
+          await updateStartupProfile(profileData);
+        } else {
+          throw createError;
+        }
+      }
 
       // Update user state
       if (user) {
@@ -326,6 +343,8 @@ export function SmartOnboarding() {
       navigate('/');
     } catch (error) {
       console.error('Failed to save profile:', error);
+      // Show error to user
+      alert('Failed to save profile. Please try again.');
     } finally {
       setIsSubmitting(false);
     }

@@ -27,43 +27,42 @@ export const login = async (email: string, password?: string): Promise<{ user: U
   }
 
   // Backend expects form data with 'username' field (email is the username)
+  console.log('Sending login request to /auth/login');
   const response = await apiClient.postForm<LoginResponse>('/auth/login', {
     username: email,
     password: password,
   });
+  console.log('Login response received:', response);
 
   // Store token temporarily to make authenticated request
   const tempToken = response.access_token;
+  console.log('Token received, fetching user info from /startup/me');
   
-  // Fetch user info from /startup/me endpoint
+  // Fetch user info from /startup/me endpoint using the token
   let user: User;
   try {
-    const meResponse = await fetch('http://127.0.0.1:8000/api/v1/startup/me', {
+    const meResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/v1'}/startup/me`, {
+      method: 'GET',
       headers: {
         'Authorization': `Bearer ${tempToken}`,
         'Content-Type': 'application/json',
       },
     });
     
-    if (meResponse.ok) {
-      const userData = await meResponse.json();
-      user = {
-        id: userData.id,
-        fullName: userData.full_name || email.split('@')[0],
-        email: userData.email,
-        onboardingCompleted: userData.onboarding_completed || false,
-      };
-    } else {
-      // Fallback if /me endpoint fails
-      user = {
-        id: 'current_user',
-        fullName: email.split('@')[0],
-        email: email,
-        onboardingCompleted: false,
-      };
+    if (!meResponse.ok) {
+      throw new Error(`Failed to fetch user info: ${meResponse.status}`);
     }
-  } catch {
-    // Fallback on network error
+    
+    const userData = await meResponse.json();
+    user = {
+      id: userData.id,
+      fullName: userData.full_name || email.split('@')[0],
+      email: userData.email,
+      onboardingCompleted: userData.onboarding_completed || false,
+    };
+  } catch (error) {
+    console.error('Failed to fetch user info:', error);
+    // Fallback on error
     user = {
       id: 'current_user',
       fullName: email.split('@')[0],

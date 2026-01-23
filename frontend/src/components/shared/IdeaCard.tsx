@@ -37,7 +37,8 @@ export function IdeaCard({ idea }: { idea: Idea }) {
   const { mutate: generate, isPending } = useGenerateRoadmap();
 
   const handleGenerateRoadmap = () => {
-    generate(idea.title, {
+    // Pass both title and description for more context
+    generate({ title: idea.title, description: idea.description }, {
       onSuccess: (newRoadmap) => {
         navigate(`/roadmaps/${newRoadmap.id}`);
       },
@@ -55,7 +56,7 @@ export function IdeaCard({ idea }: { idea: Idea }) {
       </div>
 
       {/* Description */}
-      <p className="text-sm text-gray-500 flex-grow mb-4 line-clamp-3">{idea.description}</p>
+      <p className="text-sm text-gray-500 flex-grow mb-4 line-clamp-5">{idea.description}</p>
 
       {/* Metrics */}
       <div className="space-y-3 pt-4 border-t border-gray-100">

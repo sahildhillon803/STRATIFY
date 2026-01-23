@@ -24,6 +24,11 @@ const pageConfig: Record<string, {
     subtitle: 'Overview of your startup metrics and insights',
     tabs: ['Overview', 'Analytics', 'Reports'],
   },
+  '/dashboard': {
+    title: 'Dashboard',
+    subtitle: 'Overview of your startup metrics and insights',
+    tabs: ['Overview', 'Analytics', 'Reports'],
+  },
   '/scenarios': {
     title: 'Scenarios',
     subtitle: 'Test financial impact of business decisions',

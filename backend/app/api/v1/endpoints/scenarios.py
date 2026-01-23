@@ -30,6 +30,17 @@ from app.services.scenario_engine import (
 router = APIRouter()
 
 
+@router.get("/")
+async def get_scenarios(current_user: User = Depends(get_current_user)):
+    """
+    Get all saved scenarios for the current user.
+    Returns empty list for users with no scenarios.
+    """
+    # For now, return empty list as scenarios are not persisted
+    # In future, this could fetch from a scenarios collection
+    return []
+
+
 async def _get_latest_financial_record(user: User) -> dict:
     """Fetch the latest financial record for the user."""
     record = await FinancialRecord.find(

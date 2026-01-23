@@ -5,6 +5,7 @@ export const useDashboard = () => {
   return useQuery({
     queryKey: ['dashboardData'], // A unique key for this query
     queryFn: getDashboardData, // The function that will fetch the data
-    staleTime: 1000 * 60 * 5, // Data is considered fresh for 5 minutes
+    staleTime: 1000 * 30, // Data is considered fresh for 30 seconds
+    refetchOnWindowFocus: true, // Refetch when user returns to tab
   });
 };

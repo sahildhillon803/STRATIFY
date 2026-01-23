@@ -44,6 +44,13 @@ export const getScenarios = async (): Promise<Scenario[]> => {
   return [...scenariosDB];
 };
 
+// GET a single scenario by ID
+export const getScenarioById = async (id: string): Promise<Scenario | null> => {
+  console.log('Fetching scenario by ID:', id);
+  const scenario = scenariosDB.find(s => s.id === id);
+  return scenario || null;
+};
+
 // GET scenario templates from API
 export const getScenarioTemplates = async (): Promise<ScenarioTemplate[]> => {
   try {

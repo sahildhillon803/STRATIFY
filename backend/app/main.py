@@ -8,13 +8,14 @@ from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import ORJSONResponse
 from app.core.config import settings
 from app.db.engine import init_db, close_db
-from app.api.v1.endpoints import auth, financials, ai, forecast, scenarios, roadmaps, startup, llm
+from app.api.v1.endpoints import auth, financials, ai, forecast, scenarios, roadmaps, startup, llm, onboarding
 import time
 import logging
 from typing import Callable
 
-# Configure logging
-logging.basicConfig(level=logging.INFO if not settings.DEBUG else logging.DEBUG)
+# Configure logging - reduce pymongo verbosity
+logging.basicConfig(level=logging.INFO)
+logging.getLogger("pymongo").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 
 
@@ -49,11 +50,15 @@ app = FastAPI(
 # GZip compression for responses > 500 bytes (reduces bandwidth significantly)
 app.add_middleware(GZipMiddleware, minimum_size=500)
 
-# CORS Configuration - Allow all origins for production
+# CORS Configuration - Allow frontend origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins
-    allow_credentials=False,  # Must be False when using "*"
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:3000",
+    ],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
     max_age=86400,
@@ -100,6 +105,7 @@ app.include_router(scenarios.router, prefix=f"{settings.API_V1_STR}/scenarios", 
 app.include_router(roadmaps.router, prefix=f"{settings.API_V1_STR}/roadmaps", tags=["roadmaps"])
 app.include_router(startup.router, prefix=f"{settings.API_V1_STR}/startup", tags=["startup"])
 app.include_router(llm.router, prefix=f"{settings.API_V1_STR}/llm", tags=["llm"])
+app.include_router(onboarding.router, prefix=f"{settings.API_V1_STR}/onboarding", tags=["onboarding"])
 
 
 @app.get("/", response_class=ORJSONResponse)

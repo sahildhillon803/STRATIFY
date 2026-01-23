@@ -3,6 +3,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 // Layouts - Load immediately (needed for all routes)
 import { MainLayout } from '@/components/layout/MainLayout';
+import { AuthLayout } from '@/components/layout/AuthLayout';
 
 // Wrappers & Error - Load immediately
 import { ProtectedRoute } from '@/components/shared/ProtectedRoute';
@@ -43,6 +44,18 @@ const RoadmapDetailPage = lazy(() =>
 const SettingsPage = lazy(() => 
   import('@/pages/settings/SettingsPage').then(m => ({ default: m.SettingsPage }))
 );
+const LoginPage = lazy(() => 
+  import('@/pages/auth/LoginPage').then(m => ({ default: m.LoginPage }))
+);
+const RegisterPage = lazy(() => 
+  import('@/pages/auth/RegisterPage').then(m => ({ default: m.RegisterPage }))
+);
+const ForgotPasswordPage = lazy(() => 
+  import('@/pages/auth/ForgotPasswordPage').then(m => ({ default: m.ForgotPasswordPage }))
+);
+const ResetPasswordPage = lazy(() => 
+  import('@/pages/auth/ResetPasswordPage').then(m => ({ default: m.ResetPasswordPage }))
+);
 
 // Wrap lazy components with Suspense
 const withSuspense = (Component: React.LazyExoticComponent<React.ComponentType>) => (
@@ -51,7 +64,20 @@ const withSuspense = (Component: React.LazyExoticComponent<React.ComponentType>)
   </Suspense>
 );
 
+// Helper component to redirect root to dashboard
+import { Navigate } from 'react-router-dom';
+
 const router = createBrowserRouter([
+  {
+    element: <AuthLayout />,
+    errorElement: <ErrorPage />,
+    children: [
+      { path: 'login', element: withSuspense(LoginPage) },
+      { path: 'register', element: withSuspense(RegisterPage) },
+      { path: 'forgot-password', element: withSuspense(ForgotPasswordPage) },
+      { path: 'reset-password', element: withSuspense(ResetPasswordPage) },
+    ],
+  },
   {
     path: '/',
     element: <ProtectedRoute />,
@@ -59,7 +85,7 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: withSuspense(SmartOnboarding),
+        element: <Navigate to="/dashboard" replace />,
       },
       {
         path: 'onboarding',

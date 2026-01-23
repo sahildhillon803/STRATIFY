@@ -51,6 +51,9 @@ export function DashboardPage() {
 
   // Overview Tab Content
   if (activeTab === 'Overview') {
+    // Debug: Log the metrics being rendered
+    console.log('Rendering Dashboard with metrics:', data?.metrics);
+    
     return (
       <div className="space-y-6">
         {/* Stats Cards Row - 4 cards */}
@@ -77,7 +80,11 @@ export function DashboardPage() {
         </div>
 
         {/* Revenue Comparison - Full Width */}
-        <RevenueComparison data={data?.revenueComparison} />
+        <RevenueComparison 
+          data={data?.revenueComparison} 
+          currentYearLabel="Recurring Revenue"
+          previousYearLabel="One-Time Revenue"
+        />
       </div>
     );
   }
@@ -87,6 +94,56 @@ export function DashboardPage() {
     // Check if there's actual financial data
     const hasData = data?.cashFlow && data.cashFlow.length > 0 && 
       data.cashFlow.some(d => d.balance > 0 || (d.income && d.income > 0) || (d.expenses && d.expenses > 0));
+
+    // Calculate trend metrics from cashFlow data
+    const cashFlow = data?.cashFlow || [];
+    const latestMonth = cashFlow[cashFlow.length - 1];
+    const previousMonth = cashFlow.length > 1 ? cashFlow[cashFlow.length - 2] : null;
+    
+    // Revenue Growth (MoM)
+    const revenueGrowth = previousMonth && previousMonth.income && latestMonth?.income
+      ? ((latestMonth.income - previousMonth.income) / previousMonth.income) * 100
+      : 0;
+    
+    // Expense Change (MoM)
+    const expenseChange = previousMonth && previousMonth.expenses && latestMonth?.expenses
+      ? ((latestMonth.expenses - previousMonth.expenses) / previousMonth.expenses) * 100
+      : 0;
+    
+    // Burn Rate Change
+    const latestBurn = latestMonth ? (latestMonth.expenses || 0) - (latestMonth.income || 0) : 0;
+    const previousBurn = previousMonth ? (previousMonth.expenses || 0) - (previousMonth.income || 0) : 0;
+    const burnChange = previousBurn !== 0 ? ((latestBurn - previousBurn) / Math.abs(previousBurn)) * 100 : 0;
+    
+    // Latest MRR (Monthly Recurring Revenue)
+    const latestMRR = latestMonth?.income || 0;
+    
+    // Total Revenue across all months
+    const totalRevenue = cashFlow.reduce((sum, m) => sum + (m.income || 0), 0);
+    
+    // Average Monthly Expenses
+    const avgExpenses = cashFlow.length > 0 
+      ? cashFlow.reduce((sum, m) => sum + (m.expenses || 0), 0) / cashFlow.length 
+      : 0;
+    
+    // Runway from metrics
+    const runwayMetric = data?.metrics.find(m => m.id === 'runway');
+    const runwayMonths = runwayMetric?.change?.match(/[\d.]+/)?.[0] || '0';
+
+    // Format helpers
+    const formatPercent = (val: number) => {
+      const sign = val >= 0 ? '+' : '';
+      return `${sign}${val.toFixed(1)}%`;
+    };
+    
+    const formatCurrency = (val: number) => {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(val);
+    };
 
     return (
       <div className="space-y-6">
@@ -120,19 +177,27 @@ export function DashboardPage() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
                   <span className="text-sm text-gray-600">Revenue Growth</span>
-                  <span className="text-sm font-semibold text-gray-400">--</span>
+                  <span className={`text-sm font-semibold ${revenueGrowth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {formatPercent(revenueGrowth)}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                  <span className="text-sm text-gray-600">Expense Reduction</span>
-                  <span className="text-sm font-semibold text-gray-400">--</span>
+                  <span className="text-sm text-gray-600">Expense Change</span>
+                  <span className={`text-sm font-semibold ${expenseChange <= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {formatPercent(expenseChange)}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                  <span className="text-sm text-gray-600">Runway Extension</span>
-                  <span className="text-sm font-semibold text-gray-400">--</span>
+                  <span className="text-sm text-gray-600">Current Runway</span>
+                  <span className="text-sm font-semibold text-primary-600">
+                    {runwayMonths} months
+                  </span>
                 </div>
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
                   <span className="text-sm text-gray-600">Burn Rate Change</span>
-                  <span className="text-sm font-semibold text-gray-400">--</span>
+                  <span className={`text-sm font-semibold ${burnChange <= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {formatPercent(burnChange)}
+                  </span>
                 </div>
               </div>
             )}
@@ -159,38 +224,38 @@ export function DashboardPage() {
               <div className="space-y-4">
                 <div className="p-3 bg-gray-50 rounded-xl">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-gray-600">Customer Acquisition Cost</span>
-                    <span className="text-sm font-semibold text-gray-400">--</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-gray-300 h-2 rounded-full" style={{ width: '0%' }}></div>
-                  </div>
-                </div>
-                <div className="p-3 bg-gray-50 rounded-xl">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-gray-600">Lifetime Value</span>
-                    <span className="text-sm font-semibold text-gray-400">--</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-gray-300 h-2 rounded-full" style={{ width: '0%' }}></div>
-                  </div>
-                </div>
-                <div className="p-3 bg-gray-50 rounded-xl">
-                  <div className="flex items-center justify-between mb-2">
                     <span className="text-sm text-gray-600">Monthly Recurring Revenue</span>
-                    <span className="text-sm font-semibold text-gray-400">--</span>
+                    <span className="text-sm font-semibold text-primary-600">{formatCurrency(latestMRR)}</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-gray-300 h-2 rounded-full" style={{ width: '0%' }}></div>
+                    <div className="bg-primary-500 h-2 rounded-full" style={{ width: `${Math.min((latestMRR / 50000) * 100, 100)}%` }}></div>
                   </div>
+                  <p className="text-xs text-gray-400 mt-1">Target: $50,000</p>
+                </div>
+                <div className="p-3 bg-gray-50 rounded-xl">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-gray-600">Total Revenue (All Time)</span>
+                    <span className="text-sm font-semibold text-green-600">{formatCurrency(totalRevenue)}</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="bg-green-500 h-2 rounded-full" style={{ width: `${Math.min((totalRevenue / 200000) * 100, 100)}%` }}></div>
+                  </div>
+                  <p className="text-xs text-gray-400 mt-1">Target: $200,000</p>
+                </div>
+                <div className="p-3 bg-gray-50 rounded-xl">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-gray-600">Avg. Monthly Expenses</span>
+                    <span className="text-sm font-semibold text-orange-600">{formatCurrency(avgExpenses)}</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="bg-orange-500 h-2 rounded-full" style={{ width: `${Math.min((avgExpenses / 100000) * 100, 100)}%` }}></div>
+                  </div>
+                  <p className="text-xs text-gray-400 mt-1">Budget: $100,000</p>
                 </div>
               </div>
             )}
           </div>
         </div>
-
-        {/* Revenue Comparison - Full Width */}
-        <RevenueComparison data={data?.revenueComparison} />
       </div>
     );
   }

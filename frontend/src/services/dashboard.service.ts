@@ -34,11 +34,13 @@ const formatCurrency = (amount: number): string => {
   }).format(amount);
 };
 
-// Helper to format month name
+// Helper to format month name (short format for x-axis labels)
 const formatMonthName = (monthStr: string): string => {
   const [year, month] = monthStr.split('-');
   const date = new Date(parseInt(year), parseInt(month) - 1);
-  return date.toLocaleString('default', { month: 'short' });
+  // Include year in short format: "Jan '24"
+  const shortYear = year.slice(-2);
+  return `${date.toLocaleString('default', { month: 'short' })} '${shortYear}`;
 };
 
 export const getDashboardData = async (): Promise<DashboardData> => {
@@ -75,6 +77,42 @@ export const getDashboardData = async (): Promise<DashboardData> => {
       revenueChange = `${revDiff >= 0 ? '+' : ''}${revDiff.toFixed(1)}%`;
     }
 
+    // Calculate expense breakdown from latest record
+    const expenseBreakdown = latestRecord ? [
+      { 
+        name: 'Salaries', 
+        value: latestRecord.expenses_salaries, 
+        percentage: latestRecord.total_expenses > 0 ? (latestRecord.expenses_salaries / latestRecord.total_expenses) * 100 : 0,
+        color: '#6366f1' // indigo
+      },
+      { 
+        name: 'Marketing', 
+        value: latestRecord.expenses_marketing, 
+        percentage: latestRecord.total_expenses > 0 ? (latestRecord.expenses_marketing / latestRecord.total_expenses) * 100 : 0,
+        color: '#8b5cf6' // violet
+      },
+      { 
+        name: 'Infrastructure', 
+        value: latestRecord.expenses_infrastructure, 
+        percentage: latestRecord.total_expenses > 0 ? (latestRecord.expenses_infrastructure / latestRecord.total_expenses) * 100 : 0,
+        color: '#06b6d4' // cyan
+      },
+      { 
+        name: 'Other', 
+        value: latestRecord.expenses_other, 
+        percentage: latestRecord.total_expenses > 0 ? (latestRecord.expenses_other / latestRecord.total_expenses) * 100 : 0,
+        color: '#f59e0b' // amber
+      },
+    ].filter(item => item.value > 0) : [];
+
+    // Calculate revenue comparison (recurring vs one-time per month)
+    // Note: We're using currentYear/previousYear fields to represent Recurring/One-Time revenue
+    const revenueComparison = latestRecords.map(record => ({
+      month: formatMonthName(record.month),
+      currentYear: record.revenue_recurring,   // Will be labeled as "Recurring"
+      previousYear: record.revenue_one_time,   // Will be labeled as "One-Time"
+    }));
+
     const dashboardData: DashboardData = {
       runwayMonths: runway.runway_months > 100 ? 999 : runway.runway_months, // Cap at 999 for "profitable"
       metrics: [
@@ -110,10 +148,18 @@ export const getDashboardData = async (): Promise<DashboardData> => {
       cashFlow: latestRecords.map(record => ({
         month: formatMonthName(record.month),
         balance: record.cash_balance,
+        income: record.total_revenue,
+        expenses: record.total_expenses,
+        net: record.total_revenue - record.total_expenses,
       })),
+      expenseBreakdown,
+      revenueComparison,
     };
 
     console.log('Dashboard data fetched from API.');
+    console.log('Metrics:', dashboardData.metrics);
+    console.log('Cash Balance from API:', runway.cash_balance);
+    console.log('Latest Record:', latestRecord);
     return dashboardData;
   } catch (error) {
     console.error('Failed to fetch dashboard data:', error);

@@ -5,7 +5,7 @@ from pydantic import EmailStr, Field
 
 
 class User(Document):
-    email: Indexed(EmailStr, unique=True)
+    email: Indexed(str, unique=True)  # Email field with unique index
     hashed_password: Optional[str] = None  # Optional for OAuth users
     full_name: Optional[str] = None
     is_active: bool = True
@@ -19,6 +19,3 @@ class User(Document):
 
     class Settings:
         name = "users"  # Collection name
-        indexes = [
-            [("oauth_provider", 1), ("oauth_id", 1)],  # For OAuth lookups
-        ]

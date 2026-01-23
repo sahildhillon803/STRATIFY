@@ -7,6 +7,7 @@ from beanie import init_beanie
 from app.core.config import settings
 from app.models.user import User
 from app.models.financial import FinancialRecord
+from app.models.startup import StartupProfile, UserSettings
 import logging
 
 logger = logging.getLogger(__name__)
@@ -32,15 +33,15 @@ async def init_db():
         settings.MONGODB_URI,
         tlsCAFile=certifi.where(),
         # Connection pool settings
-        minPoolSize=5,           # Minimum connections to keep open
-        maxPoolSize=50,          # Maximum connections
-        maxIdleTimeMS=30000,     # Close idle connections after 30s
+        minPoolSize=1,           # Minimum connections to keep open
+        maxPoolSize=10,          # Maximum connections
+        maxIdleTimeMS=45000,     # Close idle connections after 45s
         # Timeout settings
-        connectTimeoutMS=10000,  # Connection timeout: 10s
-        serverSelectionTimeoutMS=10000,  # Server selection: 10s
-        socketTimeoutMS=20000,   # Socket timeout: 20s
+        connectTimeoutMS=20000,  # Connection timeout: 20s
+        serverSelectionTimeoutMS=20000,  # Server selection: 20s
+        socketTimeoutMS=60000,   # Socket timeout: 60s (increased)
         # Performance settings
-        compressors=["zstd", "snappy", "zlib"],  # Enable compression
+        compressors=["snappy", "zlib"],  # Enable compression (removed zstd)
         retryWrites=True,        # Retry failed writes
         retryReads=True,         # Retry failed reads
         w="majority",            # Write concern for data safety
@@ -48,7 +49,7 @@ async def init_db():
     
     await init_beanie(
         database=_client.strata_ai,
-        document_models=[User, FinancialRecord]
+        document_models=[User, FinancialRecord, StartupProfile, UserSettings]
     )
     
     logger.info("MongoDB connection pool initialized")

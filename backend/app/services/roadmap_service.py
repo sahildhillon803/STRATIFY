@@ -87,6 +87,12 @@ Guidelines:
 5. Identify resources needed, dependencies, and risks
 6. Consider the startup's constraints (runway, team size, budget)
 
+CRITICAL - Task Descriptions:
+- Each task description MUST be 2-4 sentences long
+- Include WHAT to do, HOW to do it, and expected OUTCOME
+- Be specific with actionable steps, tools to use, and metrics
+- Example: "Conduct 15-20 customer discovery interviews using a structured discussion guide. Focus on understanding current solutions, pain points, and willingness to pay. Document key insights in a shared spreadsheet and identify 3-5 common patterns. Target completion: 5 interviews per week."
+
 Output Format: Return ONLY valid JSON matching this structure:
 {
     "title": "Roadmap title",
@@ -95,13 +101,13 @@ Output Format: Return ONLY valid JSON matching this structure:
         {
             "phase_number": 1,
             "title": "Phase title",
-            "description": "What this phase accomplishes",
+            "description": "What this phase accomplishes and why it's important (2-3 sentences)",
             "duration_weeks": 2,
             "tasks": [
                 {
                     "id": "1.1",
                     "title": "Task title",
-                    "description": "Task details",
+                    "description": "Detailed description (2-4 sentences) including: WHAT to do, HOW to do it (specific steps/tools), and SUCCESS CRITERIA (measurable outcome)",
                     "estimated_hours": 8,
                     "assignee_role": "Developer"
                 }
@@ -109,16 +115,16 @@ Output Format: Return ONLY valid JSON matching this structure:
             "kpis": [
                 {
                     "metric": "KPI name",
-                    "target": "Target value",
-                    "measurement_method": "How to measure"
+                    "target": "Specific target value with number",
+                    "measurement_method": "Specific tool or method to measure"
                 }
             ],
-            "resources_needed": ["Resource 1", "Resource 2"],
-            "dependencies": ["Dependency 1"],
-            "risks": ["Risk 1"]
+            "resources_needed": ["Specific resource with purpose"],
+            "dependencies": ["Clear dependency description"],
+            "risks": ["Specific risk with potential impact"]
         }
     ],
-    "success_criteria": ["Criterion 1", "Criterion 2"],
+    "success_criteria": ["Measurable criterion with specific target"],
     "budget_estimate": "$X,XXX - $XX,XXX"
 }
 

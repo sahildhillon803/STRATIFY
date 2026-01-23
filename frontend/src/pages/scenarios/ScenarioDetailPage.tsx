@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { apiClient } from '@/services/api.client';
+import { getScenarioById } from '@/services/scenario.service';
 import type { Scenario } from '@/types/scenario.types';
 import { 
   Loader2, 
@@ -36,8 +36,9 @@ export function ScenarioDetailPage() {
   const { data: scenario, isLoading, isError } = useQuery({
     queryKey: ['scenario', id],
     queryFn: async () => {
-      const response = await apiClient.get<{ scenario: Scenario }>(`/scenarios/${id}`);
-      return response.scenario;
+      if (!id) return null;
+      const scenario = await getScenarioById(id);
+      return scenario;
     },
     enabled: !!id,
   });

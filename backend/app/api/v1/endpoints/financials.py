@@ -49,7 +49,16 @@ async def get_current_runway(current_user: User = Depends(get_current_user)):
     ).sort(-FinancialRecord.month).first_or_none()
 
     if not latest_record:
-        raise HTTPException(status_code=404, detail="No financial data found")
+        # Return default values for new users with no data
+        from datetime import datetime
+        return {
+            "current_month": datetime.utcnow().strftime("%Y-%m"),
+            "cash_balance": 0,
+            "monthly_burn_rate": 0,
+            "runway_months": 0,
+            "status": "No Data",
+            "has_data": False
+        }
 
     burn_rate = calculate_burn_rate(latest_record)
     runway = calculate_runway_months(latest_record.cash_balance, burn_rate)
@@ -59,7 +68,8 @@ async def get_current_runway(current_user: User = Depends(get_current_user)):
         "cash_balance": latest_record.cash_balance,
         "monthly_burn_rate": burn_rate,
         "runway_months": runway,
-        "status": "Critical" if runway < 3 else "Healthy" if runway > 12 else "Warning"
+        "status": "Critical" if runway < 3 else "Healthy" if runway > 12 else "Warning",
+        "has_data": True
     }
 
 @router.post("/import", response_model=dict)

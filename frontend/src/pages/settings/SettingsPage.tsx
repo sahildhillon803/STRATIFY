@@ -24,7 +24,7 @@ const tabs: { id: SettingsTab; label: string; icon: React.ElementType }[] = [
 export function SettingsPage() {
   const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
-  const { user, logout } = useAuthStore();
+  const { user, logout, token } = useAuthStore();
   const queryClient = useQueryClient();
 
   // Fetch settings
@@ -233,6 +233,10 @@ export function SettingsPage() {
 
   // Get auth token helper
   const getAuthToken = (): string => {
+    // First try the token from Zustand store
+    if (token) return token;
+    
+    // Fallback to localStorage
     const authStorage = localStorage.getItem('auth-storage');
     if (authStorage) {
       try {
@@ -253,13 +257,13 @@ export function SettingsPage() {
       const formData = new FormData();
       formData.append('file', file);
 
-      const token = getAuthToken();
+      const authToken = getAuthToken();
       const url = `http://127.0.0.1:8000/api/v1/onboarding/extract-from-file-enhanced?file_type_hint=${fileTypeHint}`;
 
       const response = await fetch(url, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'Authorization': `Bearer ${authToken}`,
         },
         body: formData,
       });
@@ -291,12 +295,48 @@ export function SettingsPage() {
           }
 
           if (Object.keys(updateData).length > 0) {
-            await updateStartupProfile(updateData);
-            queryClient.invalidateQueries({ queryKey: ['startupProfile'] });
-            queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+            try {
+              await updateStartupProfile(updateData);
+            } catch (profileError) {
+              console.warn('Could not update startup profile, but data was extracted:', profileError);
+              // Continue since data extraction worked
+            }
           }
+          
+          // Force clear all cached data and refetch
+          queryClient.clear(); // Clear entire cache
+          
+          // Invalidate specific queries
+          await queryClient.invalidateQueries({ queryKey: ['startupProfile'] });
+          await queryClient.invalidateQueries({ queryKey: ['dashboardData'] });
+          
+          console.log('Data imported successfully - cache cleared');
 
-          setImportSuccess(`Successfully imported data from ${file.name}`);
+          // Show success with extracted values
+          const extractedValues: string[] = [];
+          if (result.bank_statement_data?.closing_balance) {
+            extractedValues.push(`Cash Balance: $${result.bank_statement_data.closing_balance.toLocaleString()}`);
+          }
+          if (result.bank_statement_data?.monthly_income_estimate) {
+            extractedValues.push(`Monthly Income: $${result.bank_statement_data.monthly_income_estimate.toLocaleString()}`);
+          }
+          if (result.bank_statement_data?.monthly_expense_estimate) {
+            extractedValues.push(`Monthly Expenses: $${result.bank_statement_data.monthly_expense_estimate.toLocaleString()}`);
+          }
+          if (result.financial_data?.latest_cash_balance) {
+            extractedValues.push(`Cash Balance: $${result.financial_data.latest_cash_balance.toLocaleString()}`);
+          }
+          if (result.startup_data?.name) {
+            extractedValues.push(`Company: ${result.startup_data.name}`);
+          }
+          if (result.startup_data?.industry) {
+            extractedValues.push(`Industry: ${result.startup_data.industry}`);
+          }
+          
+          const successMsg = extractedValues.length > 0 
+            ? `Successfully imported: ${extractedValues.join(', ')}`
+            : `Successfully imported data from ${file.name}`;
+          setImportSuccess(successMsg);
         } else {
           setImportError(result.error || 'Failed to extract data from file');
         }
@@ -324,12 +364,12 @@ export function SettingsPage() {
     setImportSuccess(null);
 
     try {
-      const token = getAuthToken();
+      const authToken = getAuthToken();
 
       const response = await fetch('http://127.0.0.1:8000/api/v1/onboarding/connect-google-sheets', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'Authorization': `Bearer ${authToken}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ sheet_url: googleSheetUrl }),
@@ -338,18 +378,47 @@ export function SettingsPage() {
       if (response.ok) {
         const result = await response.json();
         
-        if (result.success && result.financial_data) {
-          await updateStartupProfile({
-            initial_cash_balance: result.financial_data.latest_cash_balance,
-            initial_monthly_expenses: result.financial_data.average_monthly_expenses,
-            initial_monthly_revenue: result.financial_data.average_monthly_revenue,
-          });
-          queryClient.invalidateQueries({ queryKey: ['startupProfile'] });
-          queryClient.invalidateQueries({ queryKey: ['dashboard'] });
-          setImportSuccess('Successfully connected Google Sheets data');
+        if (result.success) {
+          // Try to update startup profile if we have financial data
+          if (result.financial_data) {
+            try {
+              await updateStartupProfile({
+                initial_cash_balance: result.financial_data.latest_cash_balance,
+                initial_monthly_expenses: result.financial_data.average_monthly_expenses,
+                initial_monthly_revenue: result.financial_data.average_monthly_revenue,
+              });
+            } catch (profileError) {
+              console.warn('Could not update startup profile:', profileError);
+            }
+          }
+          
+          // Force clear all cached data and refetch
+          queryClient.clear(); // Clear entire cache
+          await queryClient.invalidateQueries({ queryKey: ['startupProfile'] });
+          await queryClient.invalidateQueries({ queryKey: ['dashboardData'] });
+          console.log('Google Sheets data imported successfully - cache cleared');
+          
+          // Show success with extracted values
+          const extractedValues: string[] = [];
+          if (result.financial_data?.latest_cash_balance) {
+            extractedValues.push(`Cash Balance: $${result.financial_data.latest_cash_balance.toLocaleString()}`);
+          }
+          if (result.financial_data?.average_monthly_revenue) {
+            extractedValues.push(`Avg Revenue: $${result.financial_data.average_monthly_revenue.toLocaleString()}`);
+          }
+          if (result.records_created) {
+            extractedValues.push(`${result.records_created} months imported`);
+          }
+          
+          const successMsg = extractedValues.length > 0 
+            ? `Successfully imported: ${extractedValues.join(', ')}`
+            : 'Successfully connected Google Sheets data';
+          setImportSuccess(successMsg);
           setGoogleSheetUrl('');
         } else {
-          setImportError(result.error || 'Failed to extract data from Google Sheets');
+          // API returned success: false
+          const errorMsg = result.message || result.errors?.[0] || 'Failed to extract data from Google Sheets';
+          setImportError(errorMsg);
         }
       } else {
         const errorData = await response.json().catch(() => ({}));
