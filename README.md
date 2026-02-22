@@ -5,8 +5,8 @@
 
 ---
 
-## 👤 Founder
-**Sahil**  
+## 👥 Founders
+**Sahil, Habis, Arshita, Raghav**  
 **Team**: Tech Titans
 
 ---
