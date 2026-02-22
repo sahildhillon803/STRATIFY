@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 
 // Layouts - Load immediately (needed for all routes)
 import { MainLayout } from '@/components/layout/MainLayout';
@@ -44,6 +44,11 @@ const RoadmapDetailPage = lazy(() =>
 const SettingsPage = lazy(() => 
   import('@/pages/settings/SettingsPage').then(m => ({ default: m.SettingsPage }))
 );
+// --- ADDED INVESTOR DIRECTORY LAZY LOAD ---
+const InvestorDirectoryPage = lazy(() => 
+  import('@/pages/dashboard/InvestorDirectoryPage').then(m => ({ default: m.InvestorDirectoryPage }))
+);
+
 const LoginPage = lazy(() => 
   import('@/pages/auth/LoginPage').then(m => ({ default: m.LoginPage }))
 );
@@ -63,9 +68,6 @@ const withSuspense = (Component: React.LazyExoticComponent<React.ComponentType>)
     <Component />
   </Suspense>
 );
-
-// Helper component to redirect root to dashboard
-import { Navigate } from 'react-router-dom';
 
 const router = createBrowserRouter([
   {
@@ -101,6 +103,8 @@ const router = createBrowserRouter([
           { path: 'roadmaps', element: withSuspense(RoadmapsPage) },
           { path: 'roadmaps/:id', element: withSuspense(RoadmapDetailPage) },
           { path: 'settings', element: withSuspense(SettingsPage) },
+          // --- ADDED INVESTOR DIRECTORY ROUTE HERE ---
+          { path: 'investors', element: withSuspense(InvestorDirectoryPage) },
         ],
       },
     ],

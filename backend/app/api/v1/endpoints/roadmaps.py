@@ -92,6 +92,15 @@ def _convert_roadmap_to_response(roadmap) -> RoadmapResponse:
     )
 
 
+@router.get("/", response_model=dict)
+async def list_roadmaps(current_user: User = Depends(get_current_user)):
+    """
+    List saved roadmaps for the current user.
+    Returns empty list until roadmap persistence is implemented.
+    """
+    return {"roadmaps": []}
+
+
 @router.post("/generate", response_model=RoadmapResponse)
 async def generate_execution_roadmap(
     request: RoadmapGenerateRequest,

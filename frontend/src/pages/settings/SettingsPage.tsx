@@ -258,7 +258,8 @@ export function SettingsPage() {
       formData.append('file', file);
 
       const authToken = getAuthToken();
-      const url = `https://strata-ai-backend-zj91.onrender.com/api/v1/onboarding/extract-from-file-enhanced?file_type_hint=${fileTypeHint}`;
+      const baseUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api/v1';
+      const url = `${baseUrl}/onboarding/extract-from-file-enhanced?file_type_hint=${fileTypeHint}`;
 
       const response = await fetch(url, {
         method: 'POST',
@@ -303,14 +304,13 @@ export function SettingsPage() {
             }
           }
           
-          // Force clear all cached data and refetch
-          queryClient.clear(); // Clear entire cache
-          
-          // Invalidate specific queries
+          // Force refetch so dashboard and AI see new data
+          queryClient.removeQueries({ queryKey: ['dashboardData'] });
           await queryClient.invalidateQueries({ queryKey: ['startupProfile'] });
           await queryClient.invalidateQueries({ queryKey: ['dashboardData'] });
+          await queryClient.refetchQueries({ queryKey: ['dashboardData'] });
           
-          console.log('Data imported successfully - cache cleared');
+          console.log('Data imported successfully - cache invalidated and refetched');
 
           // Show success with extracted values
           const extractedValues: string[] = [];
@@ -338,11 +338,11 @@ export function SettingsPage() {
             : `Successfully imported data from ${file.name}`;
           setImportSuccess(successMsg);
         } else {
-          setImportError(result.error || 'Failed to extract data from file');
+          setImportError(result.error || result.message || 'Failed to extract data from file');
         }
       } else {
         const errorData = await response.json().catch(() => ({}));
-        setImportError(errorData.detail || 'Failed to upload file');
+        setImportError(errorData.detail || errorData.message || 'Failed to upload file');
       }
     } catch (error) {
       console.error('Import failed:', error);
@@ -365,8 +365,10 @@ export function SettingsPage() {
 
     try {
       const authToken = getAuthToken();
+      const baseUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api/v1';
+      const url = `${baseUrl}/onboarding/connect-google-sheets`;
 
-      const response = await fetch('https://strata-ai-backend-zj91.onrender.com/api/v1/onboarding/connect-google-sheets', {
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${authToken}`,
@@ -392,11 +394,12 @@ export function SettingsPage() {
             }
           }
           
-          // Force clear all cached data and refetch
-          queryClient.clear(); // Clear entire cache
+          // Force refetch so dashboard and AI see new data
+          queryClient.removeQueries({ queryKey: ['dashboardData'] });
           await queryClient.invalidateQueries({ queryKey: ['startupProfile'] });
           await queryClient.invalidateQueries({ queryKey: ['dashboardData'] });
-          console.log('Google Sheets data imported successfully - cache cleared');
+          await queryClient.refetchQueries({ queryKey: ['dashboardData'] });
+          console.log('Google Sheets data imported successfully - cache invalidated and refetched');
           
           // Show success with extracted values
           const extractedValues: string[] = [];
@@ -422,7 +425,7 @@ export function SettingsPage() {
         }
       } else {
         const errorData = await response.json().catch(() => ({}));
-        setImportError(errorData.detail || 'Failed to connect to Google Sheets');
+        setImportError(errorData.detail || errorData.message || 'Failed to connect to Google Sheets');
       }
     } catch (error) {
       console.error('Google Sheets connection failed:', error);

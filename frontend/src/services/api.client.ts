@@ -9,8 +9,8 @@
  * - Environment-aware base URL
  */
 
-// Use environment variable or fallback to localhost
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://strata-ai-backend-zj91.onrender.com/api/v1';
+// Use environment variable or fallback to local backend (so upload + dashboard use same API)
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api/v1';
 
 // Request timeout in milliseconds
 const REQUEST_TIMEOUT = 30000;

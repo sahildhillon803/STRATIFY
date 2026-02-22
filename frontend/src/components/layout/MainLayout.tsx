@@ -1,11 +1,11 @@
-import { Outlet, useLocation } from 'react-router-dom'; // Import useLocation
+import { Outlet, useLocation } from 'react-router-dom'; 
 import { motion } from 'framer-motion';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
 import { ModalController } from '@/components/shared/ModalController';
 
 export function MainLayout() {
-  const location = useLocation(); // Get the current location
+  const location = useLocation(); 
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-gray-50">
@@ -13,7 +13,7 @@ export function MainLayout() {
       <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-64 bg-cream-100 min-h-screen">
         <Header />
         <motion.main
-          key={location.pathname} // This key is crucial to re-trigger the animation on route change
+          key={location.pathname} 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, ease: "easeInOut" }}
@@ -22,7 +22,6 @@ export function MainLayout() {
           <Outlet />
         </motion.main>
       </div>
-      {/* Modal Controller - renders modals based on UI state */}
       <ModalController />
     </div>
   );

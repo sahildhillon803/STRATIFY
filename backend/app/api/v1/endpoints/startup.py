@@ -49,7 +49,8 @@ async def create_financial_record_from_profile(user: User, cash_balance: float, 
 
 
 # ============== Schemas ==============
-
+class StartupVisionUpdate(BaseModel):
+    description: str
 class CreateStartupInput(BaseModel):
     name: str
     industry: Optional[str] = "Technology"
@@ -159,31 +160,31 @@ async def create_startup_profile(
 
 
 @router.get("/profile", response_model=StartupProfileResponse)
-async def get_startup_profile(
+@router.put("/vision")
+async def update_startup_vision(
+    input: StartupVisionUpdate,
     current_user: User = Depends(get_current_user)
 ):
-    """Get the startup profile for the current user."""
+    """
+    Saves the founder's unique startup vision to the database.
+    This is the data the Startify AI Engine uses to find VC matches!
+    """
     profile = await StartupProfileModel.find_one(
         StartupProfileModel.user.id == current_user.id
     )
     
     if not profile:
-        raise HTTPException(status_code=404, detail="Startup profile not found")
+        raise HTTPException(status_code=404, detail="Startup profile not found. Please complete onboarding first.")
+        
+    profile.description = input.description
+    profile.updated_at = datetime.utcnow()
+    await profile.save()
     
-    return StartupProfileResponse(
-        id=str(profile.id),
-        name=profile.name,
-        industry=profile.industry,
-        stage=profile.stage,
-        description=profile.description,
-        team_size=profile.team_size,
-        initial_cash_balance=profile.initial_cash_balance,
-        initial_monthly_expenses=profile.initial_monthly_expenses,
-        initial_monthly_revenue=profile.initial_monthly_revenue,
-        goals=profile.goals,
-        created_at=profile.created_at,
-        updated_at=profile.updated_at
-    )
+    return {
+        "status": "success", 
+        "message": "Startup vision locked in.",
+        "description": profile.description
+    }
 
 
 @router.put("/profile", response_model=StartupProfileResponse)

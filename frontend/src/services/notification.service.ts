@@ -10,9 +10,10 @@ export const fetchNotifications = async (): Promise<Notification[]> => {
   
   try {
     // Try to fetch from API
-    const response = await apiClient.get<{ notifications: Notification[] }>('/notifications');
-    store.setNotifications(response.notifications);
-    return response.notifications;
+    const response = await apiClient.get<{ notifications?: Notification[] }>('/notifications');
+    const notifications = response.notifications || [];
+    store.setNotifications(notifications);
+    return notifications;
   } catch {
     // If API doesn't exist yet, generate notifications based on dashboard data
     const notifications = await generateNotificationsFromDashboard();

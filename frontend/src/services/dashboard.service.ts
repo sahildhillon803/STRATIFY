@@ -50,11 +50,14 @@ export const getDashboardData = async (): Promise<DashboardData> => {
     // Fetch runway data
     const runway = await apiClient.get<RunwayResponse>('/financials/runway');
     
-    // Fetch all financial records for historical data
-    const records = await apiClient.get<FinancialRecord[]>('/financials/export');
+    // Fetch all financial records for historical data (API returns array or wrapped { data: [] })
+    const exportResponse = await apiClient.get<FinancialRecord[] | { data?: FinancialRecord[]; records?: FinancialRecord[] }>('/financials/export');
+    const records: FinancialRecord[] = Array.isArray(exportResponse)
+      ? exportResponse
+      : (exportResponse?.data ?? exportResponse?.records ?? []);
     
     // Sort records by month
-    const sortedRecords = records.sort((a, b) => a.month.localeCompare(b.month));
+    const sortedRecords = [...records].sort((a, b) => a.month.localeCompare(b.month));
     const latestRecords = sortedRecords.slice(-6); // Last 6 months
     
     // Calculate metrics
@@ -201,13 +204,13 @@ export const generateReport = async (reportType: ReportType): Promise<void> => {
     }
     
     try {
-      records = await apiClient.get<FinancialRecord[]>('/financials/export');
+      const exportResponse = await apiClient.get<FinancialRecord[] | { data?: FinancialRecord[] }>('/financials/export');
+      records = Array.isArray(exportResponse) ? exportResponse : (exportResponse?.data ?? []);
     } catch {
-      // Default to empty records if API fails
       records = [];
     }
     
-    const sortedRecords = records.sort((a, b) => a.month.localeCompare(b.month));
+    const sortedRecords = [...records].sort((a, b) => a.month.localeCompare(b.month));
     
     // Generate report content based on type
     let reportContent: object;

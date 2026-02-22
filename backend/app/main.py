@@ -12,6 +12,11 @@ from app.api.v1.endpoints import auth, financials, ai, forecast, scenarios, road
 import time
 import logging
 from typing import Callable
+# Import it at the top
+from app.api.v1.endpoints import notifications
+
+# Add this line with the others
+
 
 # Configure logging - reduce pymongo verbosity
 logging.basicConfig(level=logging.INFO)
@@ -108,7 +113,7 @@ app.include_router(roadmaps.router, prefix=f"{settings.API_V1_STR}/roadmaps", ta
 app.include_router(startup.router, prefix=f"{settings.API_V1_STR}/startup", tags=["startup"])
 app.include_router(llm.router, prefix=f"{settings.API_V1_STR}/llm", tags=["llm"])
 app.include_router(onboarding.router, prefix=f"{settings.API_V1_STR}/onboarding", tags=["onboarding"])
-
+app.include_router(notifications.router, prefix="/api/v1/notifications", tags=["notifications"])
 
 @app.get("/", response_class=ORJSONResponse)
 async def root():

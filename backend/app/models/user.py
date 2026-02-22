@@ -2,7 +2,8 @@ from typing import Optional, List
 from datetime import datetime
 from beanie import Document, Indexed
 from pydantic import EmailStr, Field
-
+from typing import Optional
+from pydantic import BaseModel
 
 class User(Document):
     email: Indexed(str, unique=True)  # Email field with unique index
@@ -11,6 +12,8 @@ class User(Document):
     is_active: bool = True
     created_at: datetime = Field(default_factory=datetime.utcnow)
     last_login: Optional[datetime] = None
+    company_name: Optional[str] = "My Startup"
+    company_description: Optional[str] = None  # Add this line!
     
     # OAuth fields
     oauth_provider: Optional[str] = None  # "google", "github", etc.

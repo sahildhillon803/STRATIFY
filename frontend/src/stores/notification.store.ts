@@ -28,21 +28,21 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
   setNotifications: (notifications) => set({ notifications }),
   
   addNotification: (notification) => set((state) => ({
-    notifications: [notification, ...state.notifications],
+    notifications: [notification, ...(state.notifications || [])],
   })),
   
   markAsRead: (id) => set((state) => ({
-    notifications: state.notifications.map((n) =>
+    notifications: (state.notifications || []).map((n) =>
       n.id === id ? { ...n, read: true } : n
     ),
   })),
   
   markAllAsRead: () => set((state) => ({
-    notifications: state.notifications.map((n) => ({ ...n, read: true })),
+    notifications: (state.notifications || []).map((n) => ({ ...n, read: true })),
   })),
   
   removeNotification: (id) => set((state) => ({
-    notifications: state.notifications.filter((n) => n.id !== id),
+    notifications: (state.notifications || []).filter((n) => n.id !== id),
   })),
   
   clearAll: () => set({ notifications: [] }),
@@ -51,5 +51,14 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
   
   setError: (error) => set({ error }),
   
-  getUnreadCount: () => get().notifications.filter((n) => !n.read).length,
+// ... existing code ...
+  
+  getUnreadCount: () => {
+    const state = get();
+  // Safety check: if state or notifications is undefined, return 0
+    if (!state || !state.notifications || !Array.isArray(state.notifications)) {
+      return 0;
+    }
+    return state.notifications.filter((n) => !n.read).length;
+  },
 }));

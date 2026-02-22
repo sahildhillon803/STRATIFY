@@ -11,37 +11,48 @@ async def generate_strategy_ideas(financial_summary: str, startup_context: str) 
         return '{"error": "No AI API Key configured"}'
 
     prompt = f"""
-    You are a world-class startup strategy consultant with experience helping 100+ startups achieve product-market fit and scale.
-    
-    Analyze the following data and provide 3-4 highly actionable pivot or growth strategies.
+        ### ROLE
+        You are a veteran Y Combinator-level startup advisor and turnaround expert. You have a reputation for ruthless prioritization and financial discipline. Your goal is to save startups from failure or skyrocket their growth based strictly on their data.
 
-    FINANCIAL SUMMARY:
-    {financial_summary}
+        ### INPUT DATA
+        FINANCIAL SUMMARY:
+        {financial_summary}
 
-    STARTUP CONTEXT:
-    {startup_context}
+        STARTUP CONTEXT:
+        {startup_context}
 
-    REQUIREMENTS FOR EACH STRATEGY:
-    1. Title: Clear, specific strategy name (e.g., "Enterprise Tier Launch" not just "New Product")
-    
-    2. Description: MUST be 3-5 sentences including:
-       - WHAT: What exactly is this strategy?
-       - WHY: Why is this the right move given their situation?
-       - HOW: High-level approach to execute this
-       - OUTCOME: What success looks like (with metrics if possible)
-       
-    3. Impact Score (1-10): Based on potential revenue impact, runway extension, or growth acceleration
-    
-    4. Difficulty (Low/Medium/High): Based on resources, time, and complexity required
+        ### INSTRUCTIONS
+        1. Analyze the financial health first. Calculate implied runway (Cash / Burn).
+        - IF RUNWAY < 6 MONTHS: Prioritize survival, cost-cutting, and immediate revenue realization (pivots).
+        - IF RUNWAY > 12 MONTHS: Prioritize aggressive scaling and market capture (growth).
+        2. Generate 3-4 distinct, high-impact strategies tailored to this specific scenario.
 
-    EXAMPLE OF A GOOD DESCRIPTION:
-    "Launch a premium enterprise tier priced at $499/month targeting mid-size retailers with 10+ locations. This addresses the growth stall by capturing higher-value customers while leveraging existing product capabilities. Start by identifying 20 potential enterprise accounts from your current user base and conducting discovery calls. Success looks like 5 enterprise customers within 90 days, adding $2,500+ MRR."
+        ### STRATEGY REQUIREMENTS
+        For each strategy object, provide:
+        1. "title": Action-oriented and specific (e.g., "Kill Freemium Tier," not "Change Pricing").
+        2. "description": A dense, high-value paragraph (3-5 sentences) strictly following this structure:
+        - [THE DIAGNOSIS]: Identify the specific financial or structural bottleneck.
+        - [THE PRESCRIPTION]: The exact strategic move to make.
+        - [THE EXECUTION]: A concrete first step to take tomorrow.
+        - [THE RESULT]: Quantifiable financial outcome (e.g., "Reduces burn by 15%").
+        3. "impact_score" (1-10): 10 being "Company saving/defining."
+        4. "difficulty" (Low/Medium/High): Based on engineering lift and operational drag.
 
-    OUTPUT FORMAT:
-    Return ONLY a valid JSON object with a key "suggestions" containing a list of objects.
-    Each object must have: 'title', 'description', 'impact_score' (1-10), and 'difficulty' (Low/Medium/High).
-    Do not output markdown or explanations, just the JSON.
-    """
+        ### OUTPUT FORMAT
+        Return ONLY raw, valid JSON. Do not include markdown formatting (like ```json), introduction, or conclusion.
+
+        Expected JSON Structure:
+        {{
+        "suggestions": [
+            {{
+            "title": "String",
+            "description": "String",
+            "impact_score": Integer,
+            "difficulty": "String"
+            }}
+        ]
+        }}
+        """
 
     try:
         chat_completion = await client.chat.completions.create(
