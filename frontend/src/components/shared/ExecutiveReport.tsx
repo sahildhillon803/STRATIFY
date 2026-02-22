@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useCfoStore } from '../../stores/cfo.store';
 
 export const ExecutiveReport = () => {
@@ -15,7 +15,7 @@ export const ExecutiveReport = () => {
     <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mt-6">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold text-gray-800">Monthly Board Update</h2>
-        <button 
+        <button
           onClick={fetchExecutiveReport}
           disabled={isGeneratingReport}
           className="text-sm text-blue-600 hover:text-blue-800 disabled:text-gray-400"

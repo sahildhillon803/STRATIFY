@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { InvestorCard } from '@/components/shared/InvestorCard';
 import { fetchFilterOptions, fetchFilteredInvestors, type InvestorMatch, type FilterOptions } from '@/services/investorService';
 

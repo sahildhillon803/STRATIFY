@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { fetchMatchedInvestors, type InvestorMatch } from '@/services/investorService';
 import { InvestorCard } from '@/components/shared/InvestorCard';
 
@@ -13,12 +13,12 @@ export const InvestorMatchList: React.FC<{ startupId: number }> = ({ startupId }
     const getMatches = async () => {
       try {
         setLoading(true);
-        
+
         // 1. Define the startup's current profile for the AI to analyze
         const startupPitch = "We are an AI-driven SaaS platform that automates financial reporting and matches startup founders with venture capital investors using machine learning.";
         const raisingAmount = 250000; // Looking for $250k
         const currentStage = "Early Revenue"; // Match this to OpenVC stages
-        
+
         // 2. Send it to the backend
         const results = await fetchMatchedInvestors(startupPitch, raisingAmount, currentStage);
         setInvestors(results.top_investors);
