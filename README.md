@@ -50,7 +50,7 @@ STRATIFY provides a unified interface to transform disjointed financial data int
 ## ✅ Solutions Implemented
 - Added loading states & optimized API calls
 - Used pagination for large data
-- Modularized components for maintainability
+- Modularized components for maintainability.
 
 
 ## 🧠 Tech Stack
