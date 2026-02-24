@@ -41,6 +41,18 @@ STRATIFY provides a unified interface to transform disjointed financial data int
 
 ---
 
+
+## ⚡ Challenges Faced
+- API response delays during investor search
+- Handling large financial datasets on UI
+- Maintaining clean component structure
+
+## ✅ Solutions Implemented
+- Added loading states & optimized API calls
+- Used pagination for large data
+- Modularized components for maintainability
+
+
 ## 🧠 Tech Stack
 - **Frontend:** React, TypeScript, Tailwind CSS
 - **Backend:** FastAPI, Python
